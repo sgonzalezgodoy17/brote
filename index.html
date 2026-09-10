@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brote — tu rutina, viva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12202B;
+    --surface:#1C2F3D;
+    --surface-2:#24425A;
+    --accent:#E8A15D;
+    --accent-soft:#3A2E1E;
+    --sage:#8FC6EA;
+    --sage-soft:#1B2E3A;
+    --chaos:#C97B84;
+    --chaos-soft:#3A2429;
+    --text:#F4EEE1;
+    --text-muted:#9FB0C0;
+    --border:rgba(244,238,225,0.09);
+    --hero-a:#1B2A33;
+    --hero-b:#182229;
+    --radius:18px;
+  }
+  body.light{
+    --bg:#F5F2EA;
+    --surface:#FFFFFF;
+    --surface-2:#ECE6D8;
+    --accent-soft:#F7E1BC;
+    --sage-soft:#E4EEF6;
+    --chaos-soft:#F7E1E3;
+    --text:#241F17;
+    --text-muted:#736A5B;
+    --border:rgba(36,31,23,0.10);
+    --hero-a:#EEF2EC;
+    --hero-b:#E7EEE4;
+  }
+  body{transition:background .3s ease, color .3s ease;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.serif{font-family:'Fraunces',serif;}
+  .app{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ---- top bar ---- */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:30px;height:30px;flex-shrink:0;}
+  .brand-name{font-family:'Fraunces',serif;font-size:22px;font-weight:600;letter-spacing:0.2px;}
+  .energy-picker{display:flex;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px;}
+  .energy-btn{border:none;background:transparent;color:var(--text-muted);font-family:'Inter';font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer;transition:all .25s ease;white-space:nowrap;}
+  .energy-btn.active{background:var(--accent);color:#241708;}
+  .theme-toggle{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    background:var(--surface);border:1px solid var(--border);color:var(--text);
+    font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:transform .2s ease;
+  }
+  .theme-toggle:active{transform:scale(0.9);}
+
+  /* ---- mode selector ---- */
+  .mode-section{margin-bottom:16px;}
+  .mode-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;}
+  .mode-row::-webkit-scrollbar{display:none;}
+  .mode-chip{
+    flex-shrink:0;display:flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:10px 14px;cursor:pointer;
+    transition:all .2s ease;
+  }
+  .mode-chip .mi{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .mode-chip .ml{font-size:13px;font-weight:600;color:var(--text-muted);white-space:nowrap;}
+  .mode-chip.active{border-color:var(--mode-color, var(--sage));background:var(--mode-bg, var(--surface));}
+  .mode-chip.active .ml{color:var(--text);}
+  .mode-tagline{font-size:12.5px;color:var(--text-muted);margin:8px 2px 0;}
+
+  /* ---- hero / garden ---- */
+  .hero{
+    background:linear-gradient(180deg,var(--hero-a) 0%, var(--hero-b) 100%);
+    border:1px solid var(--border);
+    border-radius:24px;
+    padding:30px 28px 0;
+    overflow:hidden;
+    position:relative;
+    margin-bottom:18px;
+  }
+  .hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;}
+  .hero-greeting{max-width:360px;}
+  .hero-greeting h1{font-size:26px;font-weight:500;margin:0 0 8px;line-height:1.25;}
+  .hero-greeting p{color:var(--text-muted);font-size:14.5px;line-height:1.55;margin:0;}
+  .hero-stat{text-align:right;}
+  .hero-stat .num{font-family:'Fraunces',serif;font-size:34px;color:var(--sage);line-height:1;}
+  .hero-stat .lbl{font-size:12px;color:var(--text-muted);margin-top:2px;}
+  .garden-wrap{margin-top:14px;}
+  .garden-caption{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-muted);padding:0 2px 6px;}
+  .week-dots{display:flex;gap:5px;}
+  .week-dot{width:7px;height:7px;border-radius:50%;background:var(--surface-2);}
+  .week-dot.on{background:var(--sage);}
+
+  /* ---- tabs ---- */
+  .tabs{display:flex;gap:6px;overflow-x:auto;margin:22px 0 18px;padding-bottom:2px;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{flex-shrink:0;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);font-family:'Inter';font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:12px;cursor:pointer;transition:all .2s ease;}
+  .tab.active{background:var(--surface-2);color:var(--text);border-color:rgba(244,238,225,0.18);}
+
+  .panel{display:none;}
+  .panel.active{display:block;animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* ---- habit cards (anchor based) ---- */
+  .section-title{font-size:15px;color:var(--text-muted);margin:0 0 12px;font-weight:600;}
+  .habit-card{
+    display:flex;align-items:center;gap:14px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:16px;padding:14px 16px;margin-bottom:10px;
+    transition:border-color .2s ease;
+  }
+  .habit-card.done{border-color:rgba(127,182,158,0.4);}
+  .habit-icon{width:40px;height:40px;border-radius:12px;background:var(--sage-soft);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+  .habit-body{flex:1;min-width:0;}
+  .habit-anchor{font-size:11.5px;color:var(--text-muted);margin-bottom:2px;}
+  .habit-name{font-size:15px;font-weight:500;}
+  .habit-check{width:26px;height:26px;border-radius:50%;border:2px solid var(--surface-2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:transparent;transition:all .2s ease;}
+  .habit-check.done{background:var(--sage);border-color:var(--sage);color:#10212B;}
+  .habit-del{
+    background:transparent;border:none;color:var(--text-muted);
+    font-size:15px;cursor:pointer;padding:4px 2px;flex-shrink:0;opacity:0.6;
+    transition:opacity .2s ease,color .2s ease;
+  }
+  .habit-del:hover{opacity:1;color:var(--chaos);}
+  .add-task-card{border:1px dashed var(--border);background:transparent;}
+  .add-task-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .add-task-row input{flex:1;min-width:140px;}
+
+  /* ---- chat ---- */
+  .chat-bubble{max-width:78%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.45;}
+  .chat-bubble.me{align-self:flex-end;background:var(--accent);color:#241708;border-bottom-right-radius:4px;}
+  .chat-bubble.peer{align-self:flex-start;background:var(--surface-2);color:var(--text);border-bottom-left-radius:4px;}
+  .chat-bubble.system{align-self:center;background:transparent;color:var(--text-muted);font-size:12px;font-style:italic;text-align:center;max-width:90%;}
+  .group-chip{
+    flex-shrink:0;display:flex;align-items:center;gap:6px;
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:8px 12px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-muted);
+  }
+  .group-chip.active{border-color:var(--accent);color:var(--text);background:var(--accent-soft);}
+
+  /* ---- generic cards ---- */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:12px;}
+  .card h3{margin:0 0 6px;font-size:16px;font-weight:500;}
+  .card p{margin:0;color:var(--text-muted);font-size:13.5px;line-height:1.55;}
+
+  /* ---- future self ---- */
+  .msg-card{border-left:2px solid var(--sage);}
+  .msg-card.locked{opacity:0.55;}
+  .msg-tag{display:inline-block;font-size:11px;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:999px;margin-bottom:8px;}
+  .compose{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  textarea,select,input[type=text]{
+    background:var(--bg);border:1px solid var(--border);color:var(--text);
+    border-radius:10px;padding:10px 12px;font-family:'Inter';font-size:13.5px;
+  }
+  textarea{resize:vertical;min-height:70px;}
+  .btn{
+    border:none;border-radius:10px;padding:10px 16px;font-family:'Inter';font-weight:600;font-size:13.5px;cursor:pointer;
+    background:var(--accent);color:#241708;transition:transform .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+  /* ---- chaos mode ---- */
+  .chaos-trigger{
+    position:fixed;right:20px;bottom:20px;
+    background:var(--chaos);color:#2A1418;border:none;border-radius:999px;
+    padding:13px 18px;font-family:'Inter';font-weight:700;font-size:13px;
+    display:flex;align-items:center;gap:7px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:40;
+  }
+  .overlay{position:fixed;inset:0;background:rgba(8,14,11,0.65);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .overlay.active{display:flex;}
+  .sheet{background:var(--surface);border:1px solid var(--border);border-radius:22px 22px 0 0;max-width:480px;width:100%;padding:24px 22px 28px;animation:up .3s ease;}
+  @keyframes up{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .sheet h3{margin:0 0 4px;}
+  .micro-option{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:8px 0;cursor:pointer;font-size:14px;}
+  .micro-option:hover{border-color:var(--chaos);}
+
+  /* ---- community ---- */
+  .session-card{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .session-info .time{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:3px;}
+  .avatars{display:flex;margin-top:8px;}
+  .avatar{width:22px;height:22px;border-radius:50%;background:var(--sage-soft);border:2px solid var(--surface);margin-left:-6px;font-size:10px;display:flex;align-items:center;justify-content:center;}
+  .avatar:first-child{margin-left:0;}
+
+  /* ---- weekly review ---- */
+  .bars{display:flex;align-items:flex-end;gap:8px;height:90px;margin:14px 0 6px;}
+  .bar{flex:1;background:var(--surface-2);border-radius:6px 6px 3px 3px;position:relative;}
+  .bar .fill{position:absolute;bottom:0;left:0;right:0;background:var(--sage);border-radius:6px 6px 3px 3px;transition:height .6s ease;}
+  .bar-labels{display:flex;gap:8px;font-size:10.5px;color:var(--text-muted);}
+  .bar-labels span{flex:1;text-align:center;}
+  .reflect-box{margin-top:16px;}
+  .ai-reply{background:var(--sage-soft);border-radius:12px;padding:14px;margin-top:12px;font-size:13.5px;line-height:1.6;display:none;}
+  .ai-reply.show{display:block;}
+  .loading{color:var(--text-muted);font-size:13px;font-style:italic;}
+
+  body.light .msg-tag{color:#A8672A;}
+  body.light .habit-anchor,body.light .mode-tagline,body.light .hero-greeting p{color:var(--text-muted);}
+  body.light .loading{color:var(--text-muted);}
+
+  @media(max-width:600px){
+    .hero-top{flex-direction:column;}
+    .hero-stat{text-align:left;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none">
+        <path d="M20 34C20 34 20 24 20 18C20 12 15 8 9 9C9 15 13 19 20 18" fill="#8FC6EA" opacity="0.85"/>
+        <path d="M20 34C20 34 20 26 20 20C20 15 25 11 31 12C31 17 27 21 20 20" fill="#E8A15D" opacity="0.85"/>
+      </svg>
+      <span class="brand-name">Brote</span>
+    </div>
+    <div class="row" style="gap:10px;">
+      <div class="energy-picker" id="energyPicker">
+        <button class="energy-btn" data-e="low">Baja</button>
+        <button class="energy-btn active" data-e="medium">Media</button>
+        <button class="energy-btn" data-e="high">Alta</button>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema" onclick="toggleTheme()">🌙</button>
+    </div>
+  </div>
+
+  <div class="mode-section">
+    <div class="mode-row" id="modeRow"></div>
+    <p class="mode-tagline" id="modeTagline"></p>
+  </div>
+
+  <div class="hero">
+    <div class="hero-top">
+      <div class="hero-greeting">
+        <h1 id="greeting">Buenas, Sara 🌤️</h1>
+        <p>Modo <strong id="modeWord">organización</strong> · energía <strong id="energyWord">media</strong>. Tu rutina se ha ajustado a lo que puedes dar hoy, no a lo ideal.</p>
+      </div>
+      <div class="hero-stat">
+        <div class="num" id="gardenPct">45%</div>
+        <div class="lbl">de tu jardín ha florecido</div>
+      </div>
+    </div>
+    <div class="garden-wrap">
+      <svg id="gardenSvg" viewBox="0 0 860 190" style="width:100%;height:150px;display:block;">
+      </svg>
+      <div class="garden-caption">
+        <span>Tu constancia de esta semana</span>
+        <div class="week-dots" id="weekDots"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="hoy">Hoy</button>
+    <button class="tab" data-tab="futuro">Yo futuro</button>
+    <button class="tab" data-tab="comunidad">Comunidad</button>
+    <button class="tab" data-tab="revision">Revisión semanal</button>
+  </div>
+
+  <!-- HOY -->
+  <div class="panel active" id="panel-hoy">
+    <div class="section-title">Tu rutina, anclada a lo que ya haces</div>
+    <div id="habitList"></div>
+    <div class="card add-task-card">
+      <h3>Añadir tarea a este modo</h3>
+      <p>Se añade solo al modo activo — cada bloque tiene su propia lista.</p>
+      <div class="add-task-row">
+        <input type="text" id="newAnchor" placeholder="Después de... (ancla, opcional)">
+        <input type="text" id="newHabitName" placeholder="Nombre de la tarea">
+      </div>
+      <button class="btn" style="margin-top:10px;" onclick="addHabit()">Añadir</button>
+    </div>
+    <div class="card">
+      <h3>¿Por qué "anclada"?</h3>
+      <p>En vez de ponerte una hora fija que nunca cumples, cada hábito nuevo cuelga de algo que ya haces siempre — despertar, desayunar, comer, dormir. Así no dependes de la memoria ni de la fuerza de voluntad.</p>
+    </div>
+  </div>
+
+  <!-- YO FUTURO -->
+  <div class="panel" id="panel-futuro">
+    <div class="section-title">Mensajes que te dejaste a ti misma</div>
+    <div id="msgList"></div>
+    <div class="card">
+      <h3>Déjate un mensaje nuevo</h3>
+      <p>Se desbloqueará cuando cumplas la condición que elijas — no cuando quieras leerlo, sino cuando lo necesites.</p>
+      <div class="compose">
+        <textarea id="msgText" placeholder="Ej: Si estás leyendo esto es porque llevas 7 días seguidos. Recuerda por qué empezaste..."></textarea>
+        <select id="msgCondition">
+          <option value="streak7">Al completar 7 días seguidos</option>
+          <option value="chaos">La próxima vez que uses "Modo caos"</option>
+          <option value="days30">Dentro de 30 días</option>
+          <option value="garden100">Cuando tu jardín llegue al 100%</option>
+        </select>
+        <button class="btn" onclick="addMessage()">Guardar mensaje</button>
+      </div>
+    </div>
+    <div class="card" style="border-style:dashed;">
+      <h3>🔧 Herramienta de prueba</h3>
+      <p>Esto no estaría en la app real. Como la racha de 7 días depende de días de calendario reales, aquí puedes simular el paso de un día para comprobar que la función funciona de verdad, en vez de tener datos falsos ya puestos.</p>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn ghost" onclick="simulateNextDay()">⏩ Simular día siguiente</button>
+        <span style="font-size:12.5px;color:var(--text-muted);">Día simulado: <strong id="dayCounter">1</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMUNIDAD -->
+  <div class="panel" id="panel-comunidad">
+    <div class="section-title" id="communityTitle">Body doubling — trabaja acompañada, en silencio</div>
+    <div id="sessionList"></div>
+    <div class="card">
+      <h3>¿Qué es esto?</h3>
+      <p>Te conectas con otras personas haciendo su propia rutina al mismo tiempo. Sin conversación, sin presión — solo presencia compartida, que suele motivar más que una notificación.</p>
+    </div>
+
+    <div class="section-title" style="margin-top:22px;">Tus grupos</div>
+    <div class="card" id="groupsEmpty">
+      <p>Cuando le des a "Unirme" en una sesión, aquí aparecerá tu grupo con su propio chat.</p>
+    </div>
+    <div id="groupsWrap" style="display:none;">
+      <div class="mode-row" id="groupChips" style="margin-bottom:12px;"></div>
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="chatMessages" style="max-height:260px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;"></div>
+        <div style="display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);">
+          <input type="text" id="chatInput" placeholder="Escribe algo a tu grupo..." style="flex:1;" onkeydown="if(event.key==='Enter')sendMessage();">
+          <button class="btn" onclick="sendMessage()">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVISIÓN -->
+  <div class="panel" id="panel-revision">
+    <div class="section-title">Cómo fue tu semana</div>
+    <div class="card">
+      <div class="bars" id="bars"></div>
+      <div class="bar-labels">
+        <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+      </div>
+    </div>
+    <div class="card reflect-box">
+      <h3>Reflexión guiada</h3>
+      <p>Una pregunta, no una tabla de números. Responde con lo primero que pienses.</p>
+      <div class="compose">
+        <textarea id="reflectText" placeholder="¿Qué patrón notaste esta semana en cuándo te costaba más seguir la rutina?"></textarea>
+        <button class="btn" onclick="getReflection()">Reflexionar con Brote</button>
+      </div>
+      <div class="ai-reply" id="aiReply"></div>
+    </div>
+  </div>
+
+</div>
+
+<button class="chaos-trigger" onclick="openChaos()">🌪️ Modo caos</button>
+
+<div class="overlay" id="chaosOverlay">
+  <div class="sheet">
+    <span class="msg-tag" style="color:#C97B84;background:#3A2429;">Modo caos</span>
+    <h3>Se te fue el día. Está bien.</h3>
+    <p style="color:var(--text-muted);font-size:13.5px;margin:6px 0 4px;">No necesitas la rutina completa. Elige una sola cosa mínima:</p>
+    <div id="chaosOptions"></div>
+    <button class="btn ghost" style="margin-top:10px;width:100%;" onclick="closeChaos()">Cerrar</button>
+  </div>
+</div>
+
+<script>
+// ---------- state ----------
+let energy = 'medium';
+let currentMode = 'organizacion';
+const energyWords = {low:'baja', medium:'media', high:'alta'};
+
+const modes = [
+  {
+    id:'organizacion', label:'Organización', icon:'🗂️',
+    color:'#8FC6EA', soft:'#5F94B6', dim:'#3D5A6B',
+    tagline:'Estructura tu día con foco y prioridades claras, no con listas imposibles.',
+    habits:[
+      {id:'o1', anchor:'Después de despertarte', icon:'🗒️', done:false,
+        variants:{high:'Revisar la agenda completa', medium:'Ver solo lo de hoy', low:'Mirar la primera cita'}},
+      {id:'o2', anchor:'Después de desayunar', icon:'🎯', done:false,
+        variants:{high:'Anotar 3 prioridades', medium:'Anotar 1 prioridad', low:'Elegir 1 sola cosa importante'}},
+      {id:'o3', anchor:'Después de comer', icon:'📥', done:false,
+        variants:{high:'Vaciar la bandeja de pendientes', medium:'Revisar pendientes urgentes', low:'Mirar solo lo que vence hoy'}},
+      {id:'o4', anchor:'Antes de dormir', icon:'🌙', done:false,
+        variants:{high:'Preparar la lista de mañana', medium:'Anotar 1 cosa para mañana', low:'Cerrar el día sin pantallas'}},
+    ]
+  },
+  {
+    id:'salud_mental', label:'Salud mental', icon:'🫧',
+    color:'#C9B8ED', soft:'#9A85C9', dim:'#4A3F66',
+    tagline:'Pequeños espacios para notar cómo estás, no para arreglarte de golpe.',
+    habits:[
+      {id:'s1', anchor:'Después de despertarte', icon:'🌤️', done:false,
+        variants:{high:'Meditar 10 min', medium:'Meditar 5 min', low:'Respirar hondo 3 veces'}},
+      {id:'s2', anchor:'Después de desayunar', icon:'📝', done:false,
+        variants:{high:'Escribir 3 cosas por las que agradeces', medium:'Escribir 1 cosa buena', low:'Nombrar cómo te sientes hoy'}},
+      {id:'s3', anchor:'Después de comer', icon:'🚶', done:false,
+        variants:{high:'Salir a caminar sin móvil 15 min', medium:'Salir a tomar aire 5 min', low:'Abrir la ventana y respirar'}},
+      {id:'s4', anchor:'Antes de dormir', icon:'💭', done:false,
+        variants:{high:'Journaling emocional', medium:'Anotar 1 pensamiento que te ronda', low:'Una respiración profunda'}},
+    ]
+  },
+  {
+    id:'gimnasio', label:'Gimnasio', icon:'🏋️',
+    color:'#F0A66E', soft:'#D98A52', dim:'#5A4030',
+    tagline:'Constancia con el cuerpo, sin exigirte el entreno perfecto cada día.',
+    habits:[
+      {id:'g1', anchor:'Después de despertarte', icon:'🤸', done:false,
+        variants:{high:'Movilidad 10 min', medium:'Movilidad 5 min', low:'Estirar el cuello y la espalda'}},
+      {id:'g2', anchor:'Antes de entrenar', icon:'🔥', done:false,
+        variants:{high:'Calentamiento completo 8 min', medium:'Calentamiento corto 4 min', low:'Un par de series suaves'}},
+      {id:'g3', anchor:'Después de entrenar', icon:'📊', done:false,
+        variants:{high:'Registrar pesos y sensaciones', medium:'Registrar qué entrenaste', low:'Marcar solo "hecho"'}},
+      {id:'g4', anchor:'Antes de dormir', icon:'💧', done:false,
+        variants:{high:'Estirar + hidratarte bien', medium:'Beber agua e hidratar', low:'Un vaso de agua'}},
+    ]
+  },
+  {
+    id:'estudio', label:'Estudio', icon:'📚',
+    color:'#82C0D9', soft:'#4F93AC', dim:'#2F4F5C',
+    tagline:'Bloques de foco cortos para avanzar sin quemarte antes del examen.',
+    habits:[
+      {id:'e1', anchor:'Después de desayunar', icon:'⏱️', done:false,
+        variants:{high:'Bloque de estudio 45 min', medium:'Bloque de estudio 25 min', low:'Bloque de estudio 10 min'}},
+      {id:'e2', anchor:'A media mañana', icon:'🔁', done:false,
+        variants:{high:'Repasar apuntes del día anterior', medium:'Repaso rápido 5 min', low:'Leer solo el resumen'}},
+      {id:'e3', anchor:'Después de comer', icon:'✏️', done:false,
+        variants:{high:'Hacer ejercicios prácticos', medium:'2-3 ejercicios', low:'1 ejercicio sencillo'}},
+      {id:'e4', anchor:'Antes de dormir', icon:'🗓️', done:false,
+        variants:{high:'Planificar la próxima sesión', medium:'Decidir qué tema toca mañana', low:'Cerrar los apuntes en orden'}},
+    ]
+  },
+];
+
+function getMode(){ return modes.find(m=>m.id===currentMode); }
+function hexAlpha(hex, alpha){ return hex + alpha; }
+
+const weekHistory = [0,0,0,0,0,0,0]; // datos reales; se rellenan día a día, no hay historial inventado
+let simulatedDay = 1;
+let chaosUsed = false;
+let gardenHit100 = false;
+
+function computeStreak(){
+  let streak = 0;
+  for(let i=weekHistory.length-1;i>=0;i--){
+    if(weekHistory[i] >= 50) streak++; else break;
+  }
+  return streak;
+}
+
+const futureMessages = [
+  {conditionType:'streak7', conditionLabel:'Al completar 7 días seguidos', unlocked:false,
+    text:'Si estás leyendo esto, llevas una semana entera. Recuerda: no empezaste esto para ser perfecta, empezaste para dejar de sentirte perdida.'},
+  {conditionType:'chaos', conditionLabel:'La próxima vez que uses "Modo caos"', unlocked:false,
+    text:'Oye. Un mal día no borra los buenos. Haz solo una cosa pequeña y ya está.'},
+  {conditionType:'days30', conditionLabel:'Dentro de 30 días', unlocked:false,
+    unlockDate: Date.now() + 30*24*60*60*1000,
+    text:'(mensaje bloqueado hasta la fecha)'},
+];
+
+const sessions = [
+  {id:'org1', time:'Hoy · 09:00', title:'Planificación semanal en grupo', people:5, joined:false, mode:'organizacion'},
+  {id:'org2', time:'Hoy · 18:00', title:'Bandeja de entrada a cero', people:3, joined:false, mode:'organizacion'},
+  {id:'sm1', time:'Hoy · 21:00', title:'Círculo de respiración nocturna', people:6, joined:false, mode:'salud_mental'},
+  {id:'sm2', time:'Mañana · 08:30', title:'Journaling en compañía', people:4, joined:false, mode:'salud_mental'},
+  {id:'gym1', time:'Hoy · 19:00', title:'Entreno acompañado (cada una el suyo)', people:8, joined:false, mode:'gimnasio'},
+  {id:'gym2', time:'Mañana · 07:00', title:'Movilidad matutina en grupo', people:2, joined:false, mode:'gimnasio'},
+  {id:'est1', time:'Hoy · 17:00', title:'Bloque Pomodoro compartido', people:9, joined:false, mode:'estudio'},
+  {id:'est2', time:'Mañana · 16:00', title:'Repaso previo al examen', people:5, joined:false, mode:'estudio'},
+];
+
+// ---------- community groups & chat ----------
+const groups = {}; // id -> {title, mode, messages:[{sender, text}]}
+let activeGroupId = null;
+
+const peerReplies = [
+  'Vamos con todo 💪', 'Yo también acabo de empezar', 'Ánimo, ya casi lo tenemos',
+  '¡Qué bien verte por aquí!', 'Un poco más y lo dejamos por hoy', 'Aquí seguimos, dale'
+];
+
+// ---------- helpers ----------
+function todayScore(){
+  const habits = getMode().habits;
+  const total = habits.length;
+  const done = habits.filter(h=>h.done).length;
+  return total ? Math.round((done/total)*100) : 0;
+}
+
+function renderGreeting(){
+  document.getElementById('energyWord').textContent = energyWords[energy];
+  document.getElementById('modeWord').textContent = getMode().label.toLowerCase();
+}
+
+function renderModes(){
+  const row = document.getElementById('modeRow');
+  row.innerHTML = '';
+  modes.forEach(m=>{
+    const chip = document.createElement('div');
+    chip.className = 'mode-chip' + (m.id===currentMode ? ' active':'');
+    if(m.id===currentMode){
+      chip.style.setProperty('--mode-color', m.color);
+      chip.style.setProperty('--mode-bg', hexAlpha(m.color,'22'));
+    }
+    chip.innerHTML = `
+      <div class="mi" style="background:${hexAlpha(m.color,'26')};">${m.icon}</div>
+      <div class="ml">${m.label}</div>
+    `;
+    chip.onclick = ()=>{ currentMode = m.id; renderAll(); };
+    row.appendChild(chip);
+  });
+  document.getElementById('modeTagline').textContent = getMode().tagline;
+}
+
+function renderHabits(){
+  const list = document.getElementById('habitList');
+  const mode = getMode();
+  list.innerHTML = '';
+  mode.habits.forEach(h=>{
+    const div = document.createElement('div');
+    div.className = 'habit-card' + (h.done ? ' done':'');
+    if(h.done){ div.style.borderColor = hexAlpha(mode.color,'66'); }
+    div.innerHTML = `
+      <div class="habit-icon" style="background:${hexAlpha(mode.color,'22')};">${h.icon}</div>
+      <div class="habit-body">
+        <div class="habit-anchor">${h.anchor}</div>
+        <div class="habit-name">${h.variants[energy]}</div>
+      </div>
+      <button class="habit-check ${h.done?'done':''}" style="${h.done?`background:${mode.color};border-color:${mode.color};`:''}" onclick="toggleHabit('${h.id}')">${h.done?'✓':''}</button>
+      <button class="habit-del" title="Eliminar tarea" onclick="removeHabit('${h.id}')">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function toggleHabit(id){
+  const h = getMode().habits.find(x=>x.id===id);
+  h.done = !h.done;
+  renderHabits();
+  renderGarden();
+}
+
+function removeHabit(id){
+  const mode = getMode();
+  mode.habits = mode.habits.filter(h=>h.id!==id);
+  renderHabits();
+  renderGarden();
+}
+
+function addHabit(){
+  const anchorInput = document.getElementById('newAnchor');
+  const nameInput = document.getElementById('newHabitName');
+  const name = nameInput.value.trim();
+  if(!name) return;
+  const anchor = anchorInput.value.trim() || 'Cuando tú decidas';
+  const mode = getMode();
+  mode.habits.push({
+    id:'c'+Date.now(),
+    anchor, icon:'✨', done:false,
+    variants:{high:name, medium:name, low:name}
+  });
+  anchorInput.value = '';
+  nameInput.value = '';
+  renderHabits();
+  renderGarden();
+}
+
+// ---------- theme ----------
+function toggleTheme(){
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
+}
+
+function renderGarden(){
+  const score = todayScore();
+  weekHistory[6] = score;
+  if(score >= 100) gardenHit100 = true;
+  document.getElementById('gardenPct').textContent = score + '%';
+  drawGarden(score);
+  renderWeekDots();
+  if(document.getElementById('msgList')) renderMessages();
+}
+
+function renderWeekDots(){
+  const wrap = document.getElementById('weekDots');
+  wrap.innerHTML = '';
+  weekHistory.forEach(v=>{
+    const d = document.createElement('div');
+    d.className = 'week-dot' + (v>=50 ? ' on':'');
+    wrap.appendChild(d);
+  });
+}
+
+function drawGarden(score){
+  const svg = document.getElementById('gardenSvg');
+  const mode = getMode();
+  const plantCount = 6;
+  const maxH = 130;
+  let paths = '';
+  // ground line
+  paths += `<path d="M0 175 Q 430 165 860 175" stroke="#2B3E4A" stroke-width="1.5" fill="none" opacity="0.6"/>`;
+  for(let i=0;i<plantCount;i++){
+    const x = 60 + i*140;
+    const localScore = Math.max(0, Math.min(100, score + (Math.sin(i*1.7)*18)));
+    const h = 20 + (localScore/100)*maxH;
+    const sway = Math.sin(i*1.3)*10;
+    const bloom = localScore > 55;
+    const stemColor = localScore > 30 ? mode.color : mode.dim;
+    paths += `<path d="M${x} 178 C ${x+sway*0.4} ${178-h*0.5}, ${x+sway} ${178-h*0.8}, ${x+sway*1.2} ${178-h}"
+      stroke="${stemColor}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`;
+    // leaves
+    if(h>40){
+      paths += `<path d="M${x+sway*0.5} ${178-h*0.45} q 18 -6 22 10 q -20 4 -22 -10 Z" fill="${mode.color}" opacity="0.8"/>`;
+      paths += `<path d="M${x+sway*0.6} ${178-h*0.65} q -18 -4 -20 10 q 20 6 20 -10 Z" fill="${mode.soft}" opacity="0.8"/>`;
+    }
+    // bloom
+    if(bloom){
+      const bx = x+sway*1.2, by = 178-h;
+      paths += `<circle cx="${bx}" cy="${by}" r="7" fill="#E8A15D"/>`;
+      for(let p=0;p<5;p++){
+        const ang = (p/5)*2*Math.PI;
+        const px = bx + Math.cos(ang)*10, py = by + Math.sin(ang)*10;
+        paths += `<circle cx="${px}" cy="${py}" r="5.5" fill="#F0B274" opacity="0.9"/>`;
+      }
+      paths += `<circle cx="${bx}" cy="${by}" r="4" fill="#FCE0B0"/>`;
+    } else if(h>25){
+      paths += `<circle cx="${x+sway*1.2}" cy="${178-h}" r="4" fill="${mode.soft}"/>`;
+    }
+  }
+  svg.innerHTML = paths;
+}
+
+// ---------- energy picker ----------
+document.getElementById('energyPicker').addEventListener('click', e=>{
+  const btn = e.target.closest('.energy-btn');
+  if(!btn) return;
+  energy = btn.dataset.e;
+  document.querySelectorAll('.energy-btn').forEach(b=>b.classList.toggle('active', b===btn));
+  renderGreeting();
+  renderHabits();
+});
+
+// ---------- tabs ----------
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t===btn));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+});
+
+// ---------- future messages ----------
+const conditionLabels = {
+  streak7: 'Al completar 7 días seguidos',
+  chaos: 'La próxima vez que uses "Modo caos"',
+  days30: 'Dentro de 30 días',
+  garden100: 'Cuando tu jardín llegue al 100%',
+};
+
+function checkUnlocks(){
+  const streak = computeStreak();
+  futureMessages.forEach(m=>{
+    if(m.unlocked) return;
+    if(m.conditionType==='streak7' && streak>=7) m.unlocked = true;
+    if(m.conditionType==='chaos' && chaosUsed) m.unlocked = true;
+    if(m.conditionType==='garden100' && gardenHit100) m.unlocked = true;
+    if(m.conditionType==='days30' && Date.now() >= m.unlockDate) m.unlocked = true;
+  });
+}
+
+function progressLabel(m){
+  if(m.conditionType==='streak7'){
+    const streak = computeStreak();
+    return `${streak}/7 días seguidos`;
+  }
+  if(m.conditionType==='chaos') return 'Aún no has usado Modo caos';
+  if(m.conditionType==='garden100') return `Tu jardín (${getMode().label}) está al ${todayScore()}%`;
+  if(m.conditionType==='days30'){
+    const daysLeft = Math.max(0, Math.ceil((m.unlockDate - Date.now())/(24*60*60*1000)));
+    return `Quedan ${daysLeft} días`;
+  }
+  return '';
+}
+
+function renderMessages(){
+  checkUnlocks();
+  const wrap = document.getElementById('msgList');
+  wrap.innerHTML = '';
+  futureMessages.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'card msg-card' + (m.unlocked ? '' : ' locked');
+    div.innerHTML = `
+      <span class="msg-tag">${m.unlocked ? 'Desbloqueado' : '🔒 ' + m.conditionLabel}</span>
+      <p>${m.unlocked ? m.text : 'Este mensaje se abrirá cuando se cumpla la condición.'}</p>
+      ${m.unlocked ? '' : `<p style="margin-top:6px;font-size:12px;">${progressLabel(m)}</p>`}
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function addMessage(){
+  const text = document.getElementById('msgText').value.trim();
+  const conditionType = document.getElementById('msgCondition').value;
+  if(!text) return;
+  const entry = {conditionType, conditionLabel: conditionLabels[conditionType], unlocked:false, text};
+  if(conditionType==='days30'){
+    entry.unlockDate = Date.now() + 30*24*60*60*1000;
+  }
+  futureMessages.unshift(entry);
+  document.getElementById('msgText').value = '';
+  renderMessages();
+}
+
+// ---------- community ----------
+function renderSessions(){
+  const wrap = document.getElementById('sessionList');
+  const mode = getMode();
+  document.getElementById('communityTitle').textContent = 'Body doubling · ' + mode.label;
+  wrap.innerHTML = '';
+  const filtered = sessions.filter(s=>s.mode===currentMode);
+  filtered.forEach(s=>{
+    const div = document.createElement('div');
+    div.className = 'card session-card';
+    div.innerHTML = `
+      <div class="session-info">
+        <div class="time" style="color:${mode.color};">${s.time}</div>
+        <h3 style="margin-bottom:0;">${s.title}</h3>
+        <div class="avatars">${Array(Math.min(s.people,4)).fill('<div class="avatar">'+mode.icon+'</div>').join('')}</div>
+      </div>
+      <button class="btn ${s.joined?'ghost':''}" onclick="joinSession('${s.id}')">${s.joined?'Dentro ✓':'Unirme'}</button>
+    `;
+    wrap.appendChild(div);
+  });
+}
+
+function joinSession(id){
+  const s = sessions.find(x=>x.id===id);
+  s.joined = !s.joined;
+  if(s.joined){
+    if(!groups[id]){
+      groups[id] = {
+        title: s.title,
+        messages: [
+          {sender:'system', text:'Te has unido al grupo. Aquí podéis animaros durante la sesión.'},
+          {sender:'peer', text:'¡Bienvenida! Yo llevo 5 min, empezamos juntas 🙂'}
+        ]
+      };
+    }
+    activeGroupId = id;
+  } else {
+    delete groups[id];
+    if(activeGroupId === id){
+      const remaining = Object.keys(groups);
+      activeGroupId = remaining.length ? remaining[0] : null;
+    }
+  }
+  renderSessions();
+  renderGroups();
+}
+
+function renderGroups(){
+  const ids = Object.keys(groups);
+  const empty = document.getElementById('groupsEmpty');
+  const wrapEl = document.getElementById('groupsWrap');
+  if(ids.length === 0){
+    empty.style.display = 'block';
+    wrapEl.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  wrapEl.style.display = 'block';
+
+  const chips = document.getElementById('groupChips');
+  chips.innerHTML = '';
+  ids.forEach(id=>{
+    const chip = document.createElement('div');
+    chip.className = 'group-chip' + (id===activeGroupId ? ' active':'');
+    chip.textContent = groups[id].title;
+    chip.onclick = ()=>{ activeGroupId = id; renderGroups(); };
+    chips.appendChild(chip);
+  });
+
+  const msgsWrap = document.getElementById('chatMessages');
+  msgsWrap.innerHTML = '';
+  if(activeGroupId && groups[activeGroupId]){
+    groups[activeGroupId].messages.forEach(m=>{
+      const b = document.createElement('div');
+      b.className = 'chat-bubble ' + m.sender;
+      b.textContent = m.text;
+      msgsWrap.appendChild(b);
+    });
+    msgsWrap.scrollTop = msgsWrap.scrollHeight;
+  }
+}
+
+function sendMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text || !activeGroupId) return;
+  groups[activeGroupId].messages.push({sender:'me', text});
+  input.value = '';
+  renderGroups();
+  const gid = activeGroupId;
+  setTimeout(()=>{
+    if(groups[gid]){
+      const reply = peerReplies[Math.floor(Math.random()*peerReplies.length)];
+      groups[gid].messages.push({sender:'peer', text: reply});
+      if(activeGroupId === gid) renderGroups();
+    }
+  }, 1100);
+}
+
+// ---------- chaos mode ----------
+function openChaos(){
+  const opts = document.getElementById('chaosOptions');
+  opts.innerHTML = '';
+  getMode().habits.forEach(h=>{
+    const div = document.createElement('div');
+    div.className = 'micro-option';
+    div.textContent = `${h.icon} ${h.variants.low}`;
+    div.onclick = ()=>{
+      h.done = true;
+      chaosUsed = true;
+      renderHabits();
+      renderGarden();
+      closeChaos();
+    };
+    opts.appendChild(div);
+  });
+  document.getElementById('chaosOverlay').classList.add('active');
+}
+function closeChaos(){
+  document.getElementById('chaosOverlay').classList.remove('active');
+}
+
+// ---------- weekly bars ----------
+function renderBars(){
+  const wrap = document.getElementById('bars');
+  wrap.innerHTML = '';
+  weekHistory.forEach(v=>{
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = '100%';
+    bar.innerHTML = `<div class="fill" style="height:${v}%;"></div>`;
+    wrap.appendChild(bar);
+  });
+}
+
+// ---------- demo tool: simulate day passing ----------
+function simulateNextDay(){
+  weekHistory.shift();
+  weekHistory.push(0);
+  modes.forEach(m=> m.habits.forEach(h=> h.done = false));
+  simulatedDay++;
+  const counter = document.getElementById('dayCounter');
+  if(counter) counter.textContent = simulatedDay;
+  renderHabits();
+  renderGarden();
+  renderBars();
+}
+
+// ---------- AI reflection (calls Claude) ----------
+async function getReflection(){
+  const input = document.getElementById('reflectText').value.trim();
+  const replyBox = document.getElementById('aiReply');
+  if(!input){ return; }
+  replyBox.className = 'ai-reply show loading';
+  replyBox.textContent = 'Pensando en lo que has contado...';
+
+  const weekSummary = weekHistory.map((v,i)=>['L','M','X','J','V','S','D'][i]+':'+v+'%').join(', ');
+
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 300,
+        messages: [{
+          role: "user",
+          content: `Eres el asistente de reflexión semanal de una app de hábitos llamada Brote. Tono cálido, cercano, breve (máximo 4-5 frases), en español, sin sonar clínico ni genérico. Datos de la semana del usuario (porcentaje de hábitos completados por día): ${weekSummary}. El usuario reflexionó: "${input}". Responde con una observación amable y un pequeño ajuste concreto para la próxima semana. No uses listas ni markdown.`
+        }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.map(c=>c.text||'').join('') || 'No he podido generar una respuesta ahora mismo.';
+    replyBox.className = 'ai-reply show';
+    replyBox.textContent = text;
+  }catch(err){
+    replyBox.className = 'ai-reply show';
+    replyBox.textContent = 'No he podido conectar ahora mismo. Pero por lo que cuentas, vale la pena que lo hables contigo misma igualmente: ¿qué día de la semana te costó más, y qué tenía ese día de diferente?';
+  }
+}
+
+// ---------- init ----------
+function renderAll(){
+  renderModes();
+  renderGreeting();
+  renderHabits();
+  renderGarden();
+  renderSessions();
+}
+renderAll();
+renderMessages();
+renderBars();
+renderGroups();
+</script>
+</body>
+</html>
